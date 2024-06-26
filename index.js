@@ -9,7 +9,8 @@ const port = process.env.PORT || 5000;
 app.use(cors());
 app.use(express.json()); // Middleware to enable CORS
 app.use((req, res, next) => {
-    res.header("Access-Control-Allow-Origin", "https://assignment-10-jute-home-decor.web.app/") ; // Replace with your client's origin
+    res.header("Access-Control-Allow-Origin", "https://assignment-10-jute-home-decor.web.app/");
+     // Replace with your client's origin
     res.header("Access-Control-Allow-Headers", "Origin, X-Requested-With, Content-Type, Accept");
     res.header("Access-Control-Allow-Methods", "GET, POST, PUT, DELETE, OPTIONS");
     next();
