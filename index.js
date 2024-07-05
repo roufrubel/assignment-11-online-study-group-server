@@ -6,10 +6,15 @@ const { MongoClient, ServerApiVersion, ObjectId } = require('mongodb');
 const port = process.env.PORT || 5000;
 
 // middleware
-app.use(cors());
+const corsOptions = {
+  origin: "*",
+  optionsSuccessStatus: 200,
+};
+app.use(cors(corsOptions));
 app.use(express.json()); // Middleware to enable CORS
 app.use((req, res, next) => {
-    res.header("Access-Control-Allow-Origin", "https://assignment-10-jute-home-decor.web.app/");
+    res.header("Access-Control-Allow-Origin", 
+      "http://localhost:5173");
      // Replace with your client's origin
     res.header("Access-Control-Allow-Headers", "Origin, X-Requested-With, Content-Type, Accept");
     res.header("Access-Control-Allow-Methods", "GET, POST, PUT, DELETE, OPTIONS");
@@ -32,7 +37,7 @@ const client = new MongoClient(uri, {
 async function run() {
   try {
     // Connect the client to the server	(optional starting in v4.7)
-    await client.connect();
+    // await client.connect();
 
     const craftCollection = client.db('artCraft').collection('craft');
     // const userCollection = client.db('coffeeDB').collection('user');
@@ -43,14 +48,7 @@ async function run() {
       res.send(result);
       console.log(result)
     })
-
-    // app.get('/coffee/:id', async (req, res) => {
-    //   const id = req.params.id;
-    //   const query = {_id: new ObjectId(id)};
-    //   const result = await coffeeCollection.findOne(query);
-    //   res.send(result);
-    // })
-
+    
     app.post('/craft', async (req, res) => {
       const newCraft = req.body;
       console.log(newCraft)
@@ -59,69 +57,8 @@ async function run() {
       console.log(result)
     })
 
-    // app.put('/coffee/:id', async (req, res) => {
-    //   const id = req.params.id;
-    //   const filter = {_id: new ObjectId(id)};
-    //   const options = {upsert: true};
-    //   const updatedCoffee = req.body;
-    //   const coffee = {
-    //     $set: {
-    //                   name: updatedCoffee.name,
-    //                  quantity: updatedCoffee.quantity,
-    //                  supplier: updatedCoffee.supplier,
-    //                  taste: updatedCoffee.taste,
-    //                  category: updatedCoffee.category,
-    //                  details: updatedCoffee.details,
-    //                  photo: updatedCoffee.photo,
-    //     }
-    //   }
-    //   const result = await coffeeCollection.updateOne(filter, coffee, options);
-    //   res.send(result);
-    // })
-
-
-    // app.delete('/coffee/:id', async (req, res) => {
-    //   const id = req.params.id;
-    //   const query = {_id: new ObjectId(id)};
-    //   const result = await coffeeCollection.deleteOne(query);
-    //   res.send(result);
-    // })
-
-    // user related apis
-    // app.get('/user', async (req, res) => {
-    //   const cursor = userCollection.find();
-    //   const users = await cursor.toArray();
-    //   res.send(users);
-    // })
-
-    // app.post('/user', async (req, res) => {
-    //   const user = req.body;
-    //   console.log(user);
-    //   const result = await userCollection.insertOne(user);
-    //   res.send(result);
-    // })
-
-    // app.patch('/user', async (req, res) => {
-    //   const user = req.body;
-    //   const filter = { email: user.email }
-    //   const updatedDoc = {
-    //     $set: {
-    //       lastLoggedAt: user?.lastLoggedAt,
-    //     }
-    //   }
-    //   const result = await userCollection.updateOne(filter, updatedDoc)
-    //   res.send(result);
-    // })
-
-    // app.delete('/user/:id', async (req, res) => {
-    //   const id = req.params.id;
-    //   const query = {_id: new ObjectId(id)};
-    //   const result = await userCollection.deleteOne(query);
-    //   res.send(result);
-    // })
-
     // Send a ping to confirm a successful connection
-    await client.db("admin").command({ ping: 1 });
+    // await client.db("admin").command({ ping: 1 });
     console.log("Pinged your deployment. You successfully connected to MongoDB!");
   } finally {
     // Ensures that the client will close when you finish/error
@@ -132,9 +69,9 @@ run().catch(console.dir);
 
 
 app.get('/', (req, res) => {
-    res.send('jute making server is running')
+    res.send('jute  server is running running')
 })
 
 app.listen(port, () =>{
-    console.log('jute server is running on port ', port);
+    console.log('jute server is running running running on port ', port);
 })
