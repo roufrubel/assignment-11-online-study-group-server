@@ -14,7 +14,7 @@ app.use(cors(corsOptions));
 app.use(express.json()); // Middleware to enable CORS
 app.use((req, res, next) => {
     res.header("Access-Control-Allow-Origin", 
-      "http://localhost:5173");
+      "https://assign-10-jute-decor-client.web.app");
      // Replace with your client's origin
     res.header("Access-Control-Allow-Headers", "Origin, X-Requested-With, Content-Type, Accept");
     res.header("Access-Control-Allow-Methods", "GET, POST, PUT, DELETE, OPTIONS");
