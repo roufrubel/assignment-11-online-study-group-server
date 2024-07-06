@@ -40,13 +40,21 @@ async function run() {
     // await client.connect();
 
     const craftCollection = client.db('artCraft').collection('craft');
+    const categoryCollection = client.db('artCraft').collection('category');
     // const userCollection = client.db('coffeeDB').collection('user');
 
     app.get('/craft', async (req, res) => {
       const cursor = craftCollection.find();
       const result = await cursor.toArray();
       res.send(result);
-      console.log(result)
+      // console.log(result)
+    })
+
+    app.get('/category', async (req, res) => {
+      const cursor = categoryCollection.find();
+      const result = await cursor.toArray();
+      res.send(result);
+      // console.log(result)
     })
     
     app.post('/craft', async (req, res) => {
@@ -54,7 +62,7 @@ async function run() {
       console.log(newCraft)
       const result = await craftCollection.insertOne(newCraft);
       res.send(result);
-      console.log(result)
+      // console.log(result)
     })
 
     app.delete('/craft/:id', async (req, res) => {
@@ -82,3 +90,10 @@ app.get('/', (req, res) => {
 app.listen(port, () =>{
     console.log('jute server is running running running on port ', port);
 })
+
+
+
+
+
+
+
