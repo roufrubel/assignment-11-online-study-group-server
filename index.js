@@ -1,4 +1,5 @@
-const express = require('express');
+const express = require("express");
+const cookieParser = require("cookie-parser");
 const cors = require('cors');
 require('dotenv').config();
 const app = express();
@@ -6,20 +7,20 @@ const { MongoClient, ServerApiVersion, ObjectId } = require('mongodb');
 const port = process.env.PORT || 5000;
 
 // middleware
-const corsOptions = {
-  origin: "*",
-  optionsSuccessStatus: 200,
-};
-app.use(cors(corsOptions));
-app.use(express.json()); // Middleware to enable CORS
-app.use((req, res, next) => {
-    res.header("Access-Control-Allow-Origin", 
-      "https://assign-10-jute-decor-client.web.app");
-     // Replace with your client's origin
-    res.header("Access-Control-Allow-Headers", "Origin, X-Requested-With, Content-Type, Accept");
-    res.header("Access-Control-Allow-Methods", "GET, POST, PUT, DELETE, OPTIONS");
-    next();
-});
+app.use(
+  cors({
+    origin: [
+      "http://localhost:5173",
+      "https://assign-11-online-study-group.web.app",
+      "https://assign-11-online-study-group.firebaseapp.com",
+    ],
+    credentials: true,
+  })
+);
+
+app.use(express.json());
+app.use(cookieParser());
+
 
 
 const uri = `mongodb+srv://${process.env.DB_USER}:${process.env.DB_PASS}@cluster0.tjqypvp.mongodb.net/?retryWrites=true&w=majority&appName=Cluster0`;
@@ -34,6 +35,12 @@ const client = new MongoClient(uri, {
   }
 });
 
+const cookieOption = {
+  httpOnly: true,
+  secure: process.env.NODE_ENV === "production" ? true : false,
+  sameSite: process.env.NODE_ENV === "production" ? "none" : "strict",
+};
+
 async function run() {
   try {
     // Connect the client to the server	(optional starting in v4.7)
@@ -42,6 +49,22 @@ async function run() {
     const craftCollection = client.db('artCraft').collection('craft');
     const categoryCollection = client.db('artCraft').collection('category');
     // const userCollection = client.db('coffeeDB').collection('user');
+
+     // jwt api
+     app.post("/jwt", async (req, res) => {
+      const user = req.body;
+      console.log("user for token", user);
+      const token = jwt.sign(user, process.env.ACCESS_TOKEN_SECRET, {
+        expiresIn: "1h",
+      });
+      res.cookie("token", token, cookieOption).send({ success: true });
+    });
+
+    app.post("/logout", async (req, res) => {
+      const user = req.body;
+      console.log("logging out", user);
+      res.clearCookie("token", { ...cookieOption, maxAge: 0 }).send({ success: true });
+    });
 
     app.get('/craft', async (req, res) => {
       const cursor = craftCollection.find();
