@@ -46,9 +46,9 @@ async function run() {
     // Connect the client to the server	(optional starting in v4.7)
     // await client.connect();
 
-    const craftCollection = client.db('artCraft').collection('craft');
-    const categoryCollection = client.db('artCraft').collection('category');
-    // const userCollection = client.db('coffeeDB').collection('user');
+    const assignmentCollection = client.db('groupStudy').collection('assignment');
+    // const categoryCollection = client.db('artCraft').collection('category');
+   
 
      // jwt api
      app.post("/jwt", async (req, res) => {
@@ -66,32 +66,49 @@ async function run() {
       res.clearCookie("token", { ...cookieOption, maxAge: 0 }).send({ success: true });
     });
 
-    app.get('/craft', async (req, res) => {
-      const cursor = craftCollection.find();
+    app.get('/assignment', async (req, res) => {
+      const cursor = assignmentCollection.find();
       const result = await cursor.toArray();
       res.send(result);
       // console.log(result)
     })
 
-    app.get('/category', async (req, res) => {
-      const cursor = categoryCollection.find();
-      const result = await cursor.toArray();
+    app.get("/assignment/:id", async (req, res) => {
+      const id = req.params.id;
+      const query = { _id: new ObjectId(id) };
+
+      // const options = {
+      //   // Include only the `title` and `imdb` fields in the returned document
+      //   projection: { title: 1, marks: 1, description: 1, image: 1 },
+      // };
+
+      // const result = await assignmentCollection.findOne(query, options);
+      const result = await assignmentCollection.findOne(query);
+      console.log('update result',result)
       res.send(result);
-      // console.log(result)
-    })
+    });
+
     
-    app.post('/craft', async (req, res) => {
+
+    // app.get('/category', async (req, res) => {
+    //   const cursor = categoryCollection.find();
+    //   const result = await cursor.toArray();
+    //   res.send(result);
+    //   // console.log(result)
+    // })
+    
+    app.post('/assignment', async (req, res) => {
       const newCraft = req.body;
       console.log(newCraft)
-      const result = await craftCollection.insertOne(newCraft);
+      const result = await assignmentCollection.insertOne(newCraft);
       res.send(result);
       // console.log(result)
     })
 
-    app.delete('/craft/:id', async (req, res) => {
+    app.delete('/assignment/:id', async (req, res) => {
       const id = req.params.id;
       const query = { _id: new ObjectId(id) };     
-      const result = await craftCollection.deleteOne(query);
+      const result = await assignmentCollection.deleteOne(query);
       res.send(result);
     })
 
@@ -107,11 +124,11 @@ run().catch(console.dir);
 
 
 app.get('/', (req, res) => {
-    res.send('jute  server is running running')
+    res.send('assignment  server is running running')
 })
 
 app.listen(port, () =>{
-    console.log('jute server is running running running on port ', port);
+    console.log('assignment server is running running running on port ', port);
 })
 
 
