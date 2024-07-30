@@ -126,13 +126,15 @@ async function run() {
     app.delete("/assignment/:id", async (req, res) => {
       const id = req.params.id;
       const email = req.query.email;
+    
       const query = { _id: new ObjectId(id), user_email: email  };
       const result = await assignmentCollection.deleteOne(query);
       if (result.deletedCount === 1) {
-        res.send({ message: "Assignment deleted successfully" });
+        // res.send({ message: "Assignment deleted successfully" });
       } else {
         res.status(404).send({ message: "Assignment not found or user not authorized" });
       }
+      res.send(result)
     });
 
     // Send a ping to confirm a successful connection
