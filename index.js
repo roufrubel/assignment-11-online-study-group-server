@@ -43,10 +43,8 @@ async function run() {
     // Connect the client to the server	(optional starting in v4.7)
     // await client.connect();
 
-    const assignmentCollection = client
-      .db("groupStudy")
-      .collection("assignment");
-    // const categoryCollection = client.db('artCraft').collection('category');
+    const assignmentCollection = client.db("groupStudy").collection("assignment");
+    const submitCollection = client.db('groupStudy').collection('submit');
 
     // jwt api
     app.post("/jwt", async (req, res) => {
@@ -108,17 +106,25 @@ async function run() {
       res.send(result);
     });
 
-    // app.get('/category', async (req, res) => {
-    //   const cursor = categoryCollection.find();
-    //   const result = await cursor.toArray();
-    //   res.send(result);
-    //   // console.log(result)
-    // })
+    app.get("/submit", async (req, res) => {
+      const cursor = submitCollection.find();
+      const result = await cursor.toArray();
+      res.send(result);
+    });
 
+    
     app.post("/assignment", async (req, res) => {
-      const newCraft = req.body;
-      console.log(newCraft);
-      const result = await assignmentCollection.insertOne(newCraft);
+      const newAssignment = req.body;
+      // console.log(newAssignment);
+      const result = await assignmentCollection.insertOne(newAssignment);
+      res.send(result);
+      // console.log(result)
+    });
+    
+    app.post("/submit", async (req, res) => {
+      const submitAssignment = req.body;
+      console.log(submitAssignment);
+      const result = await submitCollection.insertOne(submitAssignment);
       res.send(result);
       // console.log(result)
     });
