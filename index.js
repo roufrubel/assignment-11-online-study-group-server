@@ -129,6 +129,40 @@ async function run() {
       // console.log(result)
     });
 
+    // app.patch("/submit/:id", async (req, res) => {
+    //   const id = req.params.id;
+    //   const filter = { _id: new ObjectId(id) };
+    //   // const filter = { _id: id };
+    //   const confirmedAssignment = req.body;
+    //   console.log(confirmedAssignment);
+    //   const updateDoc = {
+    //     $set: {
+    //       status: confirmedAssignment.status,
+    //     },
+    //   };
+    //   const result = await submitCollection.updateOne(filter, updateDoc);
+    //   res.send(result);
+    // });
+
+    app.patch("/submit/:id", async (req, res) => {
+      const id = req.params.id;
+      const filter = { _id: new ObjectId(id) };
+      const { obtainedMark, feedBack, status } = req.body;
+      console.log(req.body);
+    
+      const updateDoc = {
+        $set: {
+          obtainedMark,
+          feedBack,
+          status,
+        },
+      };
+    
+      const result = await submitCollection.updateOne(filter, updateDoc);
+      res.send(result);
+    });
+    
+
     app.delete("/assignment/:id", async (req, res) => {
       const id = req.params.id;
       const email = req.query.email;
