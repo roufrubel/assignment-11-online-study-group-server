@@ -136,18 +136,22 @@ async function run() {
     });
 
     
-    app.post("/submit", upload.single("docLink"), async (req, res) => {
-      const submitAssignment = {
-        title: req.body.title,
-        marks: req.body.marks,
-        userEmail: req.body.userEmail,
-        docLink: req.file ? req.file.path : null, 
-        quickNote: req.body.quickNote,
-      };
-      // console.log(submitAssignment);
-      const result = await submitCollection.insertOne(submitAssignment);
-      res.send(result);
-      // console.log(result)
+    app.post("/submit", upload.single("docLink"), (req, res) => {
+      const filePath = req.file.path;
+    const { title, marks, userEmail, quickNote } = req.body;
+
+       const submitAssignment = {
+        title,
+        marks,
+        userEmail,
+        docLink: filePath,
+        quickNote,
+    };
+    
+    submitCollection.insertOne(submitAssignment)
+    .then(result => {
+        res.json({ insertedId: result.insertedId });
+    })
     });
 
     app.patch("/submit/:id", async (req, res) => {
