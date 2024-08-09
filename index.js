@@ -4,6 +4,8 @@ const cors = require("cors");
 require("dotenv").config();
 const app = express();
 const { MongoClient, ServerApiVersion, ObjectId } = require("mongodb");
+const multer = require("multer");
+const path = require("path");
 const port = process.env.PORT || 5000;
 
 // middleware
@@ -20,6 +22,7 @@ app.use(
 
 app.use(express.json());
 app.use(cookieParser());
+app.use('/uploads', express.static('uploads'));
 
 const uri = `mongodb+srv://${process.env.DB_USER}:${process.env.DB_PASS}@cluster0.tjqypvp.mongodb.net/?retryWrites=true&w=majority&appName=Cluster0`;
 
@@ -38,6 +41,17 @@ const cookieOption = {
   sameSite: process.env.NODE_ENV === "production" ? "none" : "strict",
 };
 
+ const storage = multer.diskStorage({
+      destination: function (req, file, cb) {
+        cb(null, "uploads/"); // Folder to store files
+      },
+      filename: function (req, file, cb) {
+        cb(null, `${Date.now()}_${file.originalname}`);
+      },
+    });
+    
+    const upload = multer({ storage: storage });
+
 async function run() {
   try {
     // Connect the client to the server	(optional starting in v4.7)
@@ -49,7 +63,7 @@ async function run() {
     // jwt api
     app.post("/jwt", async (req, res) => {
       const user = req.body;
-      console.log("user for token", user);
+      // console.log("user for token", user);
       const token = jwt.sign(user, process.env.ACCESS_TOKEN_SECRET, {
         expiresIn: "1h",
       });
@@ -102,7 +116,7 @@ async function run() {
 
       // const result = await assignmentCollection.findOne(query, options);
       const result = await assignmentCollection.findOne(query);
-      console.log("update result", result);
+      // console.log("update result", result);
       res.send(result);
     });
 
@@ -120,29 +134,21 @@ async function run() {
       res.send(result);
       // console.log(result)
     });
+
     
-    app.post("/submit", async (req, res) => {
-      const submitAssignment = req.body;
-      console.log(submitAssignment);
+    app.post("/submit", upload.single("docLink"), async (req, res) => {
+      const submitAssignment = {
+        title: req.body.title,
+        marks: req.body.marks,
+        userEmail: req.body.userEmail,
+        docLink: req.file ? req.file.path : null, 
+        quickNote: req.body.quickNote,
+      };
+      // console.log(submitAssignment);
       const result = await submitCollection.insertOne(submitAssignment);
       res.send(result);
       // console.log(result)
     });
-
-    // app.patch("/submit/:id", async (req, res) => {
-    //   const id = req.params.id;
-    //   const filter = { _id: new ObjectId(id) };
-    //   // const filter = { _id: id };
-    //   const confirmedAssignment = req.body;
-    //   console.log(confirmedAssignment);
-    //   const updateDoc = {
-    //     $set: {
-    //       status: confirmedAssignment.status,
-    //     },
-    //   };
-    //   const result = await submitCollection.updateOne(filter, updateDoc);
-    //   res.send(result);
-    // });
 
     app.patch("/submit/:id", async (req, res) => {
       const id = req.params.id;
