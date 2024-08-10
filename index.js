@@ -4,8 +4,6 @@ const cors = require("cors");
 require("dotenv").config();
 const app = express();
 const { MongoClient, ServerApiVersion, ObjectId } = require("mongodb");
-const multer = require("multer");
-const path = require("path");
 const port = process.env.PORT || 5000;
 
 // middleware
@@ -22,7 +20,6 @@ app.use(
 
 app.use(express.json());
 app.use(cookieParser());
-app.use('/uploads', express.static('uploads'));
 
 const uri = `mongodb+srv://${process.env.DB_USER}:${process.env.DB_PASS}@cluster0.tjqypvp.mongodb.net/?retryWrites=true&w=majority&appName=Cluster0`;
 
@@ -41,24 +38,15 @@ const cookieOption = {
   sameSite: process.env.NODE_ENV === "production" ? "none" : "strict",
 };
 
- const storage = multer.diskStorage({
-      destination: function (req, file, cb) {
-        cb(null, "uploads/"); // Folder to store files
-      },
-      filename: function (req, file, cb) {
-        cb(null, `${Date.now()}_${file.originalname}`);
-      },
-    });
-    
-    const upload = multer({ storage: storage });
-
 async function run() {
   try {
     // Connect the client to the server	(optional starting in v4.7)
     // await client.connect();
 
-    const assignmentCollection = client.db("groupStudy").collection("assignment");
-    const submitCollection = client.db('groupStudy').collection('submit');
+    const assignmentCollection = client
+      .db("groupStudy")
+      .collection("assignment");
+    const submitCollection = client.db("groupStudy").collection("submit");
 
     // jwt api
     app.post("/jwt", async (req, res) => {
@@ -126,7 +114,6 @@ async function run() {
       res.send(result);
     });
 
-    
     app.post("/assignment", async (req, res) => {
       const newAssignment = req.body;
       // console.log(newAssignment);
@@ -135,23 +122,23 @@ async function run() {
       // console.log(result)
     });
 
-    
-    app.post("/submit", upload.single("docLink"), (req, res) => {
-      const filePath = req.file.path;
-    const { title, marks, userEmail, quickNote } = req.body;
+    app.post("/submit", async (req, res) => {
+      try {
+        const { title, marks, userEmail, quickNote, docLink } = req.body;
 
-       const submitAssignment = {
-        title,
-        marks,
-        userEmail,
-        docLink: filePath,
-        quickNote,
-    };
-    
-    submitCollection.insertOne(submitAssignment)
-    .then(result => {
-        res.json({ insertedId: result.insertedId });
-    })
+        const submitAssignment = {
+          docLink,
+          quickNote,
+          title,
+          marks,
+          userEmail,
+        };
+        const result = await submitCollection.insertOne(submitAssignment);
+        res.send(result)
+      } catch (error) {
+        console.error("Error in assignment submission:", error);
+        res.status(500).json({ error: "Failed to submit the assignment" });
+      }
     });
 
     app.patch("/submit/:id", async (req, res) => {
@@ -159,7 +146,7 @@ async function run() {
       const filter = { _id: new ObjectId(id) };
       const { obtainedMark, feedBack, status } = req.body;
       console.log(req.body);
-    
+
       const updateDoc = {
         $set: {
           obtainedMark,
@@ -167,24 +154,25 @@ async function run() {
           status,
         },
       };
-    
+
       const result = await submitCollection.updateOne(filter, updateDoc);
       res.send(result);
     });
-    
 
     app.delete("/assignment/:id", async (req, res) => {
       const id = req.params.id;
       const email = req.query.email;
-    
-      const query = { _id: new ObjectId(id), user_email: email  };
+
+      const query = { _id: new ObjectId(id), user_email: email };
       const result = await assignmentCollection.deleteOne(query);
       if (result.deletedCount === 1) {
         // res.send({ message: "Assignment deleted successfully" });
       } else {
-        res.status(404).send({ message: "Assignment not found or user not authorized" });
+        res
+          .status(404)
+          .send({ message: "Assignment not found or user not authorized" });
       }
-      res.send(result)
+      res.send(result);
     });
 
     // Send a ping to confirm a successful connection
